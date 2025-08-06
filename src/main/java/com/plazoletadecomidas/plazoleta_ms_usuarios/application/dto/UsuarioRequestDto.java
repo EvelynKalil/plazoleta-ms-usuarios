@@ -34,7 +34,7 @@ public class UsuarioRequestDto {
     @NotBlank
     private String password;
 
-    public UsuarioRequestDto(String firstName, String lastName, String documentId, String phone, LocalDate birthDate, String email, String password) {
+    public UsuarioRequestDto() {
         this.firstName = firstName;
         this.lastName = lastName;
         this.documentId = documentId;
