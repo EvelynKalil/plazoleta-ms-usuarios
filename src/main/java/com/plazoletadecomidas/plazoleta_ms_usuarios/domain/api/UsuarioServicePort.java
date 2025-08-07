@@ -7,4 +7,5 @@ public interface UsuarioServicePort {
     Usuario createOwner(Usuario usuario);
     Usuario saveUsuario(Usuario usuario);
     Usuario findByEmail(String email);
+    Usuario createEmployee(Usuario model);
 }

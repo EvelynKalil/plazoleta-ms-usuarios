@@ -97,4 +97,45 @@ class UsuarioHandlerTest {
         verify(authValidator).validate("fake-token", Role.ADMINISTRADOR);
         verify(usuarioMapper).toModel(requestDto, Role.PROPIETARIO);
     }
+
+    @Test
+    void createEmployee_deberiaLlamarCasoDeUsoConRolEmpleado() {
+        // Arrange
+        UsuarioRequestDto requestDto = new UsuarioRequestDto();
+        requestDto.setFirstName("Empleado");
+        requestDto.setLastName("Uno");
+        requestDto.setDocumentId("987654321");
+        requestDto.setPhone("+573001112233");
+        requestDto.setBirthDate(LocalDate.of(1995, 5, 5));
+        requestDto.setEmail("empleado@correo.com");
+        requestDto.setPassword("1234");
+
+        Usuario empleadoModel = new Usuario(
+                null,
+                "Empleado",
+                "Uno",
+                "987654321",
+                "+573001112233",
+                LocalDate.of(1995, 5, 5),
+                "empleado@correo.com",
+                "1234",
+                Role.EMPLEADO
+        );
+
+        when(usuarioMapper.toModel(requestDto, Role.EMPLEADO)).thenReturn(empleadoModel);
+        when(usuarioServicePort.createEmployee(any(Usuario.class))).thenReturn(empleadoModel);
+
+        // Act
+        usuarioHandler.createEmployee(requestDto, "fake-token");
+
+        // Assert
+        ArgumentCaptor<Usuario> captor = ArgumentCaptor.forClass(Usuario.class);
+        verify(usuarioServicePort).createEmployee(captor.capture());
+
+        Usuario creado = captor.getValue();
+        assertEquals("Empleado", creado.getFirstName());
+        assertEquals(Role.EMPLEADO, creado.getRole());
+        verify(authValidator).validate("fake-token", Role.PROPIETARIO);
+    }
+
 }

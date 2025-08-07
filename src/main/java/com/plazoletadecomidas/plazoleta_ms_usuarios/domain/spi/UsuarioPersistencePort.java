@@ -6,4 +6,5 @@ public interface UsuarioPersistencePort {
     Usuario saveUsuario(Usuario usuario);
     boolean existsEmail(String email);
     Usuario findByEmail(String email);
+    Usuario createEmployee(Usuario usuario);
 }

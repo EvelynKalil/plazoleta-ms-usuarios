@@ -3,11 +3,8 @@ package com.plazoletadecomidas.plazoleta_ms_usuarios.infrastructure.security;
 import com.plazoletadecomidas.plazoleta_ms_usuarios.domain.model.Role;
 import io.github.cdimascio.dotenv.Dotenv;
 import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
-
 import javax.annotation.PostConstruct;
 import javax.crypto.SecretKey;
 import java.util.Date;

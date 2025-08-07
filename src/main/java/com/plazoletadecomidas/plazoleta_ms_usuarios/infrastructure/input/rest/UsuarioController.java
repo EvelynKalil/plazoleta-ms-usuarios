@@ -34,4 +34,14 @@ public class UsuarioController {
         String token = usuarioHandler.login(loginRequest);
         return ResponseEntity.ok(token);
     }
+
+    @PostMapping("/employees")
+    public ResponseEntity<UsuarioResponseDto> createEmployee(
+            @RequestHeader(value = "Authorization" , required = false) String token,
+            @RequestBody @Valid UsuarioRequestDto dto
+    ) {
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(usuarioHandler.createEmployee(dto, token));
+    }
+
 }

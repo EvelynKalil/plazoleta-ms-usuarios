@@ -95,6 +95,55 @@ class UsuarioControllerValidationTest {
                 .andExpect(jsonPath("$.email").exists());
     }
 
+    @Test
+    @DisplayName("Debería rechazar empleado menor de edad con error 400")
+    void crearEmpleado_menorDeEdad_retorna400() throws Exception {
+        UsuarioRequestDto dto = buildUsuarioDto();
+        dto.setBirthDate(LocalDate.now().minusYears(10)); // menor de edad
+
+        when(usuarioHandler.createEmployee(any(UsuarioRequestDto.class), anyString()))
+                .thenThrow(new IllegalArgumentException("El usuario debe ser mayor de edad."));
+
+        mockMvc.perform(post("/users/employees")
+                        .header("Authorization", "fake-token")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(dto)))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.message").value("El usuario debe ser mayor de edad."));
+    }
+
+    @Test
+    @DisplayName("Debería rechazar email ya registrado para empleado con error 400")
+    void crearEmpleado_emailDuplicado_retorna400() throws Exception {
+        UsuarioRequestDto dto = buildUsuarioDto();
+        dto.setEmail("empleado@correo.com");
+
+        when(usuarioHandler.createEmployee(any(UsuarioRequestDto.class), anyString()))
+                .thenThrow(new IllegalArgumentException("El correo ya está registrado."));
+
+        mockMvc.perform(post("/users/employees")
+                        .header("Authorization", "fake-token")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(dto)))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.message").value("El correo ya está registrado."));
+    }
+
+    @Test
+    @DisplayName("Debería rechazar formato de email inválido al crear empleado")
+    void crearEmpleado_emailInvalido_retorna400() throws Exception {
+        UsuarioRequestDto dto = buildUsuarioDto();
+        dto.setEmail("sinArroba");
+
+        mockMvc.perform(post("/users/employees")
+                        .header("Authorization", "fake-token")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(dto)))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.email").exists());
+    }
+
+
     // Método de utilidad para no repetir datos
     private UsuarioRequestDto buildUsuarioDto() {
         UsuarioRequestDto dto = new UsuarioRequestDto();

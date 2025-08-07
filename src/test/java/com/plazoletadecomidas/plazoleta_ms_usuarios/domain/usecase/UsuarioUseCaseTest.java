@@ -97,4 +97,29 @@ class UsuarioUseCaseTest {
         assertEquals("El usuario debe ser mayor de edad.", ex.getMessage());
         verify(usuarioPersistencePort, never()).saveUsuario(any());
     }
+
+    @Test
+    void createEmployee_conDatosValidos_deberiaGuardarConRolEmpleado() {
+        Usuario usuario = new Usuario(
+                null,
+                "Empleado",
+                "Uno",
+                "321321321",
+                "+573001234567",
+                LocalDate.of(1999, 1, 1),
+                "empleado@correo.com",
+                "clave123",
+                null
+        );
+
+        when(usuarioPersistencePort.existsEmail(usuario.getEmail())).thenReturn(false);
+        when(usuarioPersistencePort.saveUsuario(any())).thenAnswer(i -> i.getArgument(0));
+
+        Usuario creado = usuarioUseCase.createEmployee(usuario);
+
+        assertEquals(Role.EMPLEADO, creado.getRole());
+        assertTrue(new BCryptPasswordEncoder().matches("clave123", creado.getPasswordHash()));
+        verify(usuarioPersistencePort).saveUsuario(any());
+    }
+
 }

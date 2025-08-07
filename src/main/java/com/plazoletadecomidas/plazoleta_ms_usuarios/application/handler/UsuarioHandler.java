@@ -38,13 +38,17 @@ public class UsuarioHandler{
         return jwtUtil.generateToken(usuario.getId(), usuario.getRole());
     }
 
-//    private String generateFakeToken(Usuario usuario) {
-//        return usuario.getId() + ":" + usuario.getRole().name(); // Simulación
-//    }
-
     public UsuarioResponseDto createOwner(UsuarioRequestDto dto, String token) {
         authValidator.validate(token, Role.ADMINISTRADOR);
         Usuario model = mapper.toModel(dto, Role.PROPIETARIO);
         return mapper.toResponseDto(usuarioServicePort.createOwner(model));
     }
+
+    public UsuarioResponseDto createEmployee(UsuarioRequestDto dto, String token) {
+        authValidator.validate(token, Role.PROPIETARIO);
+
+        Usuario model = mapper.toModel(dto, Role.EMPLEADO);
+        return mapper.toResponseDto(usuarioServicePort.createEmployee(model));
+    }
+
 }

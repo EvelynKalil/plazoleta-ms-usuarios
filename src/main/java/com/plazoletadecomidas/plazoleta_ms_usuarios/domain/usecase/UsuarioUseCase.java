@@ -1,6 +1,7 @@
 package com.plazoletadecomidas.plazoleta_ms_usuarios.domain.usecase;
 
 import com.plazoletadecomidas.plazoleta_ms_usuarios.domain.api.UsuarioServicePort;
+import com.plazoletadecomidas.plazoleta_ms_usuarios.domain.model.Role;
 import com.plazoletadecomidas.plazoleta_ms_usuarios.domain.model.Usuario;
 import com.plazoletadecomidas.plazoleta_ms_usuarios.domain.spi.UsuarioPersistencePort;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -48,5 +49,22 @@ public class UsuarioUseCase implements UsuarioServicePort {
     public Usuario saveUsuario(Usuario usuario) {
         return persistencePort.saveUsuario(usuario);
     }
+
+    @Override
+    public Usuario createEmployee(Usuario usuario) {
+        if (persistencePort.existsEmail(usuario.getEmail())) {
+            throw new IllegalArgumentException("El correo ya está registrado.");
+        }
+
+        if (!esMayorDeEdad(usuario.getBirthDate())) {
+            throw new IllegalArgumentException("El usuario debe ser mayor de edad.");
+        }
+
+        usuario.setRole(Role.EMPLEADO);
+        usuario.setPasswordHash(new BCryptPasswordEncoder().encode(usuario.getPasswordHash()));
+
+        return persistencePort.saveUsuario(usuario);
+    }
+
 
 }

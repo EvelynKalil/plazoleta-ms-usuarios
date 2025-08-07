@@ -21,6 +21,9 @@ import org.springframework.test.web.servlet.MockMvc;
 import java.time.LocalDate;
 import java.util.UUID;
 
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
@@ -60,8 +63,8 @@ class UsuarioControllerTest {
         );
 
         BDDMockito.given(usuarioHandler.createOwner(
-                BDDMockito.any(UsuarioRequestDto.class),
-                BDDMockito.anyString()
+                any(UsuarioRequestDto.class),
+                anyString()
         )).willReturn(responseDto);
 
         // Act & Assert
@@ -75,4 +78,35 @@ class UsuarioControllerTest {
                 .andExpect(jsonPath("$.email").value("evelyn@correo.com"))
                 .andExpect(jsonPath("$.role").value("PROPIETARIO"));
     }
+
+    @Test
+    void createEmployee_retorna201YDtoCorrecto() throws Exception {
+        UsuarioRequestDto requestDto = new UsuarioRequestDto();
+        requestDto.setFirstName("Empleado");
+        requestDto.setLastName("Uno");
+        requestDto.setDocumentId("123123");
+        requestDto.setPhone("+573000000000");
+        requestDto.setBirthDate(LocalDate.of(1995, 1, 1));
+        requestDto.setEmail("empleado@correo.com");
+        requestDto.setPassword("clave");
+
+        UsuarioResponseDto responseDto = new UsuarioResponseDto(
+                UUID.randomUUID(),
+                "Empleado",
+                "empleado@correo.com",
+                Role.EMPLEADO
+        );
+
+        when(usuarioHandler.createEmployee(any(), anyString())).thenReturn(responseDto);
+
+        mockMvc.perform(post("/users/employees")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("Authorization", "fake-token")
+                        .content(objectMapper.writeValueAsString(requestDto)))
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.firstName").value("Empleado"))
+                .andExpect(jsonPath("$.email").value("empleado@correo.com"))
+                .andExpect(jsonPath("$.role").value("EMPLEADO"));
+    }
+
 }
