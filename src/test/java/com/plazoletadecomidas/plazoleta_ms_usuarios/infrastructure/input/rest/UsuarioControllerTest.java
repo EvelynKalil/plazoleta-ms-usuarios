@@ -5,12 +5,16 @@ import com.plazoletadecomidas.plazoleta_ms_usuarios.application.dto.UsuarioReque
 import com.plazoletadecomidas.plazoleta_ms_usuarios.application.dto.UsuarioResponseDto;
 import com.plazoletadecomidas.plazoleta_ms_usuarios.application.handler.UsuarioHandler;
 import com.plazoletadecomidas.plazoleta_ms_usuarios.domain.model.Role;
+
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
+import org.mockito.BDDMockito;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
@@ -19,7 +23,6 @@ import java.util.UUID;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
-
 
 @WebMvcTest(UsuarioController.class)
 @AutoConfigureMockMvc(addFilters = false)
@@ -35,7 +38,8 @@ class UsuarioControllerTest {
     private ObjectMapper objectMapper;
 
     @Test
-    void createOwner_retorna201YDtoCorrecto() throws Exception {
+    @DisplayName("POST /users/owners - debería crear un propietario y retornar 201 con DTO correcto")
+    void createOwner_deberiaRetornar201YUsuarioResponseDto() throws Exception {
         // Arrange
         UsuarioRequestDto requestDto = new UsuarioRequestDto();
         requestDto.setFirstName("Evelyn");
@@ -46,26 +50,29 @@ class UsuarioControllerTest {
         requestDto.setEmail("evelyn@correo.com");
         requestDto.setPassword("1234");
 
+        UUID expectedId = UUID.fromString("11111111-1111-1111-1111-111111111111");
+
         UsuarioResponseDto responseDto = new UsuarioResponseDto(
-                UUID.fromString("11111111-1111-1111-1111-111111111111"),
+                expectedId,
                 "Evelyn",
                 "evelyn@correo.com",
                 Role.PROPIETARIO
         );
 
-        Mockito.when(usuarioHandler.createOwner(Mockito.any(), Mockito.anyString()))
-                .thenReturn(responseDto);
+        BDDMockito.given(usuarioHandler.createOwner(
+                BDDMockito.any(UsuarioRequestDto.class),
+                BDDMockito.anyString()
+        )).willReturn(responseDto);
 
         // Act & Assert
         mockMvc.perform(post("/users/owners")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .header("Authorization", "fake-token") // ✅ Simular token
+                        .header("Authorization", "Bearer fake-token") // Simula token
                         .content(objectMapper.writeValueAsString(requestDto)))
                 .andExpect(status().isCreated())
-                .andExpect(jsonPath("$.id").value("11111111-1111-1111-1111-111111111111"))
+                .andExpect(jsonPath("$.id").value(expectedId.toString()))
                 .andExpect(jsonPath("$.firstName").value("Evelyn"))
                 .andExpect(jsonPath("$.email").value("evelyn@correo.com"))
                 .andExpect(jsonPath("$.role").value("PROPIETARIO"));
     }
-
 }

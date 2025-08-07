@@ -53,18 +53,19 @@ class UsuarioControllerValidationTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(dto)))
                 .andExpect(status().isBadRequest())
-                .andExpect(content().string("El usuario debe ser mayor de edad."));
+                .andExpect(jsonPath("$.message").value("El usuario debe ser mayor de edad."));
     }
+
 
     @Test
     @DisplayName("Debería rechazar correo ya registrado con error 400")
-    void crearUsuario_correoExistente_retorna400() throws Exception {
+    void crearUsuario_correoYaRegistrado() throws Exception {
         UsuarioRequestDto dto = new UsuarioRequestDto();
         dto.setFirstName("Correo");
         dto.setLastName("Repetido");
         dto.setDocumentId("999999");
         dto.setPhone("3009999999");
-        dto.setEmail("ya@registrado.com"); // debe existir en mock
+        dto.setEmail("ya@registrado.com");
         dto.setPassword("clave123");
         dto.setBirthDate(LocalDate.of(2000, 1, 1));
 
@@ -76,26 +77,34 @@ class UsuarioControllerValidationTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(dto)))
                 .andExpect(status().isBadRequest())
-                .andExpect(content().string("El correo ya está registrado."));
+                .andExpect(jsonPath("$.message").value("El correo ya está registrado."));
     }
 
+
     @Test
-    @DisplayName("Debería rechazar email inválido con error 400")
-    void crearUsuario_emailInvalido_retorna400() throws Exception {
-        UsuarioRequestDto dto = new UsuarioRequestDto();
-        dto.setFirstName("Invalido");
-        dto.setLastName("Correo");
-        dto.setDocumentId("888888");
-        dto.setPhone("3008888888");
-        dto.setEmail("correoSinArroba"); // inválido
-        dto.setPassword("clave123");
-        dto.setBirthDate(LocalDate.of(1990, 5, 5));
+    @DisplayName("Debería retornar 400 si el email no es válido")
+    void crearUsuario_emailInvalido() throws Exception {
+        UsuarioRequestDto dto = buildUsuarioDto();
+        dto.setEmail("correoSinArroba");
 
         mockMvc.perform(post("/users/owners")
                         .header("Authorization", "fake-token")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(dto)))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.email").exists()); // Si tienes validador de DTOs por @NotBlank/@Email
+                .andExpect(jsonPath("$.email").exists());
+    }
+
+    // Método de utilidad para no repetir datos
+    private UsuarioRequestDto buildUsuarioDto() {
+        UsuarioRequestDto dto = new UsuarioRequestDto();
+        dto.setFirstName("Nombre");
+        dto.setLastName("Apellido");
+        dto.setDocumentId("12345678");
+        dto.setPhone("3009999999");
+        dto.setBirthDate(LocalDate.of(2000, 1, 1));
+        dto.setEmail("ejemplo@correo.com");
+        dto.setPassword("clave123");
+        return dto;
     }
 }

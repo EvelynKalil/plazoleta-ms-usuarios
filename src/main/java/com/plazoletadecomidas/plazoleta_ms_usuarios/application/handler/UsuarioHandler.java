@@ -9,18 +9,21 @@ import com.plazoletadecomidas.plazoleta_ms_usuarios.domain.model.Role;
 import com.plazoletadecomidas.plazoleta_ms_usuarios.domain.model.Usuario;
 import com.plazoletadecomidas.plazoleta_ms_usuarios.infrastructure.exception.UnauthorizedException;
 import com.plazoletadecomidas.plazoleta_ms_usuarios.infrastructure.security.AuthValidator;
+import com.plazoletadecomidas.plazoleta_ms_usuarios.infrastructure.security.JwtUtil;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
-public class UsuarioHandler {
+public class UsuarioHandler{
 
     private final UsuarioServicePort usuarioServicePort;
     private final UsuarioMapper mapper;
     private final AuthValidator authValidator;
+    private final JwtUtil jwtUtil;
 
-    public UsuarioHandler(UsuarioServicePort usuarioServicePort, UsuarioMapper mapper, AuthValidator authValidator) {
+    public UsuarioHandler(UsuarioServicePort usuarioServicePort, UsuarioMapper mapper, AuthValidator authValidator, JwtUtil jwtUtil) {
         this.usuarioServicePort = usuarioServicePort;
         this.mapper = mapper;
         this.authValidator = authValidator;
+        this.jwtUtil = jwtUtil;
     }
 
     public String login(LoginRequestDto request) {
@@ -32,12 +35,12 @@ public class UsuarioHandler {
             throw new UnauthorizedException("Contraseña incorrecta");
         }
 
-        return generateFakeToken(usuario);
+        return jwtUtil.generateToken(usuario.getId(), usuario.getRole());
     }
 
-    private String generateFakeToken(Usuario usuario) {
-        return usuario.getId() + ":" + usuario.getRole().name(); // Simulación
-    }
+//    private String generateFakeToken(Usuario usuario) {
+//        return usuario.getId() + ":" + usuario.getRole().name(); // Simulación
+//    }
 
     public UsuarioResponseDto createOwner(UsuarioRequestDto dto, String token) {
         authValidator.validate(token, Role.ADMINISTRADOR);
