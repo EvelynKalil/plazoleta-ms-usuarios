@@ -8,6 +8,7 @@ import com.plazoletadecomidas.plazoleta_ms_usuarios.domain.usecase.UsuarioUseCas
 import com.plazoletadecomidas.plazoleta_ms_usuarios.infrastructure.output.jpa.adapter.UsuarioJpaAdapter;
 import com.plazoletadecomidas.plazoleta_ms_usuarios.infrastructure.output.jpa.mapper.UsuarioEntityMapper;
 import com.plazoletadecomidas.plazoleta_ms_usuarios.infrastructure.output.jpa.repository.UsuarioRepository;
+import com.plazoletadecomidas.plazoleta_ms_usuarios.infrastructure.security.AuthValidator;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
@@ -26,7 +27,7 @@ public class BeanConfiguration {
     }
 
     @Bean
-    public UsuarioHandler usuarioHandler(UsuarioServicePort servicePort, UsuarioMapper mapper) {
-        return new UsuarioHandler(servicePort, mapper);
+    public UsuarioHandler usuarioHandler(UsuarioServicePort servicePort, UsuarioMapper mapper, AuthValidator authValidator) {
+        return new UsuarioHandler(servicePort, mapper, authValidator);
     }
 }

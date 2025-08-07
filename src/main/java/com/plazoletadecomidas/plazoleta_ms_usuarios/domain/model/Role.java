@@ -1,6 +1,9 @@
 package com.plazoletadecomidas.plazoleta_ms_usuarios.domain.model;
+import lombok.Getter;
 
-public enum Rol {
+@Getter
+
+public enum Role {
     ADMINISTRADOR,
     PROPIETARIO,
     EMPLEADO,

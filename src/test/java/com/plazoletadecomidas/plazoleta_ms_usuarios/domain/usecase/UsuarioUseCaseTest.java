@@ -1,6 +1,6 @@
 package com.plazoletadecomidas.plazoleta_ms_usuarios.domain.usecase;
 
-import com.plazoletadecomidas.plazoleta_ms_usuarios.domain.model.Rol;
+import com.plazoletadecomidas.plazoleta_ms_usuarios.domain.model.Role;
 import com.plazoletadecomidas.plazoleta_ms_usuarios.domain.model.Usuario;
 import com.plazoletadecomidas.plazoleta_ms_usuarios.domain.spi.UsuarioPersistencePort;
 import org.junit.jupiter.api.BeforeEach;
@@ -24,7 +24,7 @@ class UsuarioUseCaseTest {
     }
 
     @Test
-    void crearPropietario_deberiaAsignarRolYEncriptarContraseña() {
+    void createOwner_deberiaAsignarRolYEncriptarContraseña() {
         // Arrange
         Usuario usuario = new Usuario(
                 null,
@@ -39,23 +39,23 @@ class UsuarioUseCaseTest {
         );
 
         when(usuarioPersistencePort.existsEmail(usuario.getEmail())).thenReturn(false);
-        when(usuarioPersistencePort.guardarUsuario(any(Usuario.class))).thenAnswer(i -> i.getArgument(0));
+        when(usuarioPersistencePort.saveUsuario(any(Usuario.class))).thenAnswer(i -> i.getArgument(0));
 
         // Act
-        Usuario creado = usuarioUseCase.crearPropietario(usuario);
+        Usuario creado = usuarioUseCase.createOwner(usuario);
 
         // Assert
-        assertEquals(Rol.PROPIETARIO, creado.getRole());
+        assertEquals(Role.PROPIETARIO, creado.getRole());
         assertNotEquals("1234", creado.getPasswordHash());
 
         BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
         assertTrue(encoder.matches("1234", creado.getPasswordHash()));
 
-        verify(usuarioPersistencePort, times(1)).guardarUsuario(creado);
+        verify(usuarioPersistencePort, times(1)).saveUsuario(creado);
     }
 
     @Test
-    void crearPropietario_conCorreoExistente_deberiaLanzarExcepcion() {
+    void createOwner_conCorreoExistente_deberiaLanzarExcepcion() {
         // Arrange
         Usuario usuario = new Usuario(
                 null,
@@ -73,15 +73,15 @@ class UsuarioUseCaseTest {
 
         // Act & Assert
         IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> {
-            usuarioUseCase.crearPropietario(usuario);
+            usuarioUseCase.createOwner(usuario);
         });
 
         assertEquals("El correo ya está registrado.", exception.getMessage());
-        verify(usuarioPersistencePort, never()).guardarUsuario(any());
+        verify(usuarioPersistencePort, never()).saveUsuario(any());
     }
 
     @Test
-    void crearPropietario_conUsuarioMenorDeEdad_deberiaLanzarExcepcion() {
+    void createOwner_conUsuarioMenorDeEdad_deberiaLanzarExcepcion() {
         // Arrange
         Usuario usuario = new Usuario(
                 null,
@@ -97,10 +97,10 @@ class UsuarioUseCaseTest {
 
         // Act & Assert
         Exception ex = assertThrows(IllegalArgumentException.class, () -> {
-            usuarioUseCase.crearPropietario(usuario);
+            usuarioUseCase.createOwner(usuario);
         });
 
         assertEquals("El usuario debe ser mayor de edad.", ex.getMessage());
-        verify(usuarioPersistencePort, never()).guardarUsuario(any());
+        verify(usuarioPersistencePort, never()).saveUsuario(any());
     }
 }

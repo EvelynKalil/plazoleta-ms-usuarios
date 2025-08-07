@@ -18,7 +18,7 @@ public class UsuarioUseCase implements UsuarioServicePort {
     }
 
     @Override
-    public Usuario crearPropietario(Usuario usuario) {
+    public Usuario createOwner(Usuario usuario) {
         if (!esMayorDeEdad(usuario.getBirthDate())) {
             throw new IllegalArgumentException("El usuario debe ser mayor de edad.");
         }
@@ -27,15 +27,26 @@ public class UsuarioUseCase implements UsuarioServicePort {
             throw new IllegalArgumentException("El correo ya está registrado.");
         }
 
-        usuario.setRole(com.plazoletadecomidas.plazoleta_ms_usuarios.domain.model.Rol.PROPIETARIO);
+        usuario.setRole(com.plazoletadecomidas.plazoleta_ms_usuarios.domain.model.Role.PROPIETARIO);
         usuario.setPasswordHash(new BCryptPasswordEncoder().encode(usuario.getPasswordHash()));
 
         usuario.setId(UUID.randomUUID());
-
-        return persistencePort.guardarUsuario(usuario);
+        System.out.println("Password hasheado: " + usuario.getPasswordHash());
+        return persistencePort.saveUsuario(usuario);
     }
 
     private boolean esMayorDeEdad(LocalDate fechaNacimiento) {
         return Period.between(fechaNacimiento, LocalDate.now()).getYears() >= 18;
     }
+
+    @Override
+    public Usuario findByEmail(String email) {
+        return persistencePort.findByEmail(email);
+    }
+
+    @Override
+    public Usuario saveUsuario(Usuario usuario) {
+        return persistencePort.saveUsuario(usuario);
+    }
+
 }

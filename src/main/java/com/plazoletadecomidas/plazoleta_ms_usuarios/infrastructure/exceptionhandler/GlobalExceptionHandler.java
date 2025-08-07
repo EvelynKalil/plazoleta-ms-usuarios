@@ -1,5 +1,6 @@
 package com.plazoletadecomidas.plazoleta_ms_usuarios.infrastructure.exceptionhandler;
 
+import com.plazoletadecomidas.plazoleta_ms_usuarios.infrastructure.exception.UnauthorizedException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -26,4 +27,12 @@ public class GlobalExceptionHandler {
 
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errors);
     }
+
+    @ExceptionHandler(UnauthorizedException.class)
+    public ResponseEntity<Map<String, String>> handleUnauthorizedException(UnauthorizedException ex) {
+        Map<String, String> error = new HashMap<>();
+        error.put("error", ex.getMessage());
+        return new ResponseEntity<>(error, HttpStatus.UNAUTHORIZED);
+    }
+
 }

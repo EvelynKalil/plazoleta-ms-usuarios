@@ -1,6 +1,6 @@
 package com.plazoletadecomidas.plazoleta_ms_usuarios.application.dto;
 
-import com.plazoletadecomidas.plazoleta_ms_usuarios.domain.model.Rol;
+import com.plazoletadecomidas.plazoleta_ms_usuarios.domain.model.Role;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
@@ -12,6 +12,6 @@ public class UsuarioResponseDto {
     private UUID id;
     private String firstName;
     private String email;
-    private Rol rol;
+    private Role role;
 
 }

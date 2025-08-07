@@ -2,9 +2,10 @@ package com.plazoletadecomidas.plazoleta_ms_usuarios.application.handler;
 
 import com.plazoletadecomidas.plazoleta_ms_usuarios.application.dto.UsuarioRequestDto;
 import com.plazoletadecomidas.plazoleta_ms_usuarios.domain.api.UsuarioServicePort;
-import com.plazoletadecomidas.plazoleta_ms_usuarios.domain.model.Rol;
+import com.plazoletadecomidas.plazoleta_ms_usuarios.domain.model.Role;
 import com.plazoletadecomidas.plazoleta_ms_usuarios.domain.model.Usuario;
 import com.plazoletadecomidas.plazoleta_ms_usuarios.application.mapper.UsuarioMapper;
+import com.plazoletadecomidas.plazoleta_ms_usuarios.infrastructure.security.AuthValidator;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
@@ -19,16 +20,18 @@ class UsuarioHandlerTest {
     private UsuarioServicePort usuarioServicePort;
     private UsuarioMapper usuarioMapper;
     private UsuarioHandler usuarioHandler;
+    private AuthValidator authValidator;
 
     @BeforeEach
     void setUp() {
         usuarioServicePort = mock(UsuarioServicePort.class);
         usuarioMapper = mock(UsuarioMapper.class);
-        usuarioHandler = new UsuarioHandler(usuarioServicePort, usuarioMapper);
+        authValidator = mock(AuthValidator.class);
+        usuarioHandler = new UsuarioHandler(usuarioServicePort, usuarioMapper, authValidator);
     }
 
     @Test
-    void crearPropietario_deberiaLlamarCasoDeUsoConDatosCorrectos() {
+    void createOwner_deberiaLlamarCasoDeUsoConDatosCorrectos() {
         // Arrange
         UsuarioRequestDto requestDto = new UsuarioRequestDto();
         requestDto.setFirstName("Evelyn");
@@ -48,17 +51,18 @@ class UsuarioHandlerTest {
                 LocalDate.of(2000, 8, 5),
                 "evelyn@correo.com",
                 "1234",
-                Rol.PROPIETARIO // o Rol.OWNER según lo tengas
+                Role.PROPIETARIO
         );
 
-        when(usuarioMapper.toModel(requestDto)).thenReturn(usuarioMock);
+        when(usuarioMapper.toModel(requestDto, Role.PROPIETARIO)).thenReturn(usuarioMock);
+        when(usuarioServicePort.createOwner(any(Usuario.class))).thenReturn(usuarioMock);
 
         // Act
-        usuarioHandler.crearPropietario(requestDto);
+        usuarioHandler.createOwner(requestDto, "fake-token");
 
         // Assert
         ArgumentCaptor<Usuario> captor = ArgumentCaptor.forClass(Usuario.class);
-        verify(usuarioServicePort, times(1)).crearPropietario(captor.capture());
+        verify(usuarioServicePort, times(1)).createOwner(captor.capture());
 
         Usuario capturedUser = captor.getValue();
         assertEquals("Evelyn", capturedUser.getFirstName());
@@ -68,6 +72,6 @@ class UsuarioHandlerTest {
         assertEquals("evelyn@correo.com", capturedUser.getEmail());
         assertEquals("1234", capturedUser.getPasswordHash());
         assertEquals(LocalDate.of(2000, 8, 5), capturedUser.getBirthDate());
-        assertEquals(Rol.PROPIETARIO, capturedUser.getRole());
+        assertEquals(Role.PROPIETARIO, capturedUser.getRole());
     }
 }

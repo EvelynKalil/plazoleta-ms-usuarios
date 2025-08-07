@@ -1,14 +1,14 @@
 package com.plazoletadecomidas.plazoleta_ms_usuarios.infrastructure.output.jpa.entity;
-
-import com.plazoletadecomidas.plazoleta_ms_usuarios.domain.model.Rol;
+import com.plazoletadecomidas.plazoleta_ms_usuarios.domain.model.Role;
 import lombok.*;
+import org.hibernate.annotations.GenericGenerator;
 
 import javax.persistence.*;
 import java.time.LocalDate;
 import java.util.UUID;
 
 @Entity
-@Table(name = "owners")
+@Table(name = "users")
 @Getter
 @Setter
 @NoArgsConstructor
@@ -16,6 +16,8 @@ import java.util.UUID;
 public class UsuarioEntity {
 
     @Id
+    @GeneratedValue(generator = "uuid2")
+    @GenericGenerator(name = "uuid2", strategy = "uuid2")
     @Column(columnDefinition = "BINARY(16)")
     private UUID id;
 
@@ -40,7 +42,9 @@ public class UsuarioEntity {
     @Column(name = "password_hash")
     private String passwordHash;
 
-    @Column(name = "role")
+    @Column(name = "role", nullable = false)
     @Enumerated(EnumType.STRING)
-    private Rol rol;
+    private Role role;
+
+
 }

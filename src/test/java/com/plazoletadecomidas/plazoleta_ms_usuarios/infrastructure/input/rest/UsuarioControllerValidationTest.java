@@ -15,6 +15,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import java.time.LocalDate;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -44,10 +45,11 @@ class UsuarioControllerValidationTest {
         dto.setPassword("clave123");
         dto.setBirthDate(LocalDate.now().minusYears(10)); // menor de edad
 
-        when(usuarioHandler.crearPropietario(any(UsuarioRequestDto.class)))
+        when(usuarioHandler.createOwner(any(UsuarioRequestDto.class), anyString()))
                 .thenThrow(new IllegalArgumentException("El usuario debe ser mayor de edad."));
 
         mockMvc.perform(post("/users/owners")
+                        .header("Authorization", "fake-token")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(dto)))
                 .andExpect(status().isBadRequest())
@@ -66,10 +68,11 @@ class UsuarioControllerValidationTest {
         dto.setPassword("clave123");
         dto.setBirthDate(LocalDate.of(2000, 1, 1));
 
-        when(usuarioHandler.crearPropietario(any(UsuarioRequestDto.class)))
+        when(usuarioHandler.createOwner(any(UsuarioRequestDto.class), anyString()))
                 .thenThrow(new IllegalArgumentException("El correo ya está registrado."));
 
         mockMvc.perform(post("/users/owners")
+                        .header("Authorization", "fake-token")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(dto)))
                 .andExpect(status().isBadRequest())
@@ -89,9 +92,10 @@ class UsuarioControllerValidationTest {
         dto.setBirthDate(LocalDate.of(1990, 5, 5));
 
         mockMvc.perform(post("/users/owners")
+                        .header("Authorization", "fake-token")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(dto)))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.email").exists()); // opcional si tienes handler de errores de validación
+                .andExpect(jsonPath("$.email").exists()); // Si tienes validador de DTOs por @NotBlank/@Email
     }
 }

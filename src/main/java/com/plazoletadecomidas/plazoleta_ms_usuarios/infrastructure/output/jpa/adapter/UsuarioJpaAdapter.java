@@ -2,6 +2,7 @@ package com.plazoletadecomidas.plazoleta_ms_usuarios.infrastructure.output.jpa.a
 
 import com.plazoletadecomidas.plazoleta_ms_usuarios.domain.model.Usuario;
 import com.plazoletadecomidas.plazoleta_ms_usuarios.domain.spi.UsuarioPersistencePort;
+import com.plazoletadecomidas.plazoleta_ms_usuarios.infrastructure.exception.UsuarioNotFindedException;
 import com.plazoletadecomidas.plazoleta_ms_usuarios.infrastructure.output.jpa.entity.UsuarioEntity;
 import com.plazoletadecomidas.plazoleta_ms_usuarios.infrastructure.output.jpa.mapper.UsuarioEntityMapper;
 import com.plazoletadecomidas.plazoleta_ms_usuarios.infrastructure.output.jpa.repository.UsuarioRepository;
@@ -17,7 +18,7 @@ public class UsuarioJpaAdapter implements UsuarioPersistencePort {
     }
 
     @Override
-    public Usuario guardarUsuario(Usuario usuario) {
+    public Usuario saveUsuario(Usuario usuario) {
         UsuarioEntity entity = mapper.toEntity(usuario);
         UsuarioEntity saved = repository.save(entity);
         return mapper.toModel(saved);
@@ -27,4 +28,13 @@ public class UsuarioJpaAdapter implements UsuarioPersistencePort {
     public boolean existsEmail(String email) {
         return repository.existsByEmail(email);
     }
+
+    @Override
+    public Usuario findByEmail(String email) {
+        return repository.findByEmail(email)
+                .map(mapper::toModel)
+                .orElseThrow(() -> new UsuarioNotFindedException("Usuario no encontrado con email: " + email));
+    }
+
+
 }

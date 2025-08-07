@@ -4,5 +4,7 @@ import com.plazoletadecomidas.plazoleta_ms_usuarios.domain.model.Usuario;
 
 public interface UsuarioServicePort {
 
-    Usuario crearPropietario(Usuario usuario);
+    Usuario createOwner(Usuario usuario);
+    Usuario saveUsuario(Usuario usuario);
+    Usuario findByEmail(String email);
 }
