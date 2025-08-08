@@ -34,13 +34,4 @@ public class UsuarioRequestDto {
     @NotBlank
     private String password;
 
-    public UsuarioRequestDto() {
-        this.firstName = firstName;
-        this.lastName = lastName;
-        this.documentId = documentId;
-        this.phone = phone;
-        this.birthDate = birthDate;
-        this.email = email;
-        this.password = password;
-    }
 }

@@ -38,8 +38,6 @@ public class UsuarioJpaAdapter implements UsuarioPersistencePort {
 
     @Override
     public Usuario createEmployee(Usuario usuario) {
-        UsuarioEntity entity = mapper.toEntity(usuario);
-        UsuarioEntity saved = repository.save(entity);
-        return mapper.toModel(saved);
+        return saveUsuario(usuario);
     }
 }

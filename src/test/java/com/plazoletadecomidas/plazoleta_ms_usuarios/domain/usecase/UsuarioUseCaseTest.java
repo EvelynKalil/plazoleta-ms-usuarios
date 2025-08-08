@@ -3,11 +3,8 @@ package com.plazoletadecomidas.plazoleta_ms_usuarios.domain.usecase;
 import com.plazoletadecomidas.plazoleta_ms_usuarios.domain.model.Role;
 import com.plazoletadecomidas.plazoleta_ms_usuarios.domain.model.Usuario;
 import com.plazoletadecomidas.plazoleta_ms_usuarios.domain.spi.UsuarioPersistencePort;
-
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.extension.ExtendWith;
-
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -28,8 +25,8 @@ class UsuarioUseCaseTest {
     @InjectMocks
     private UsuarioUseCase usuarioUseCase;
 
-    private final String EMAIL = "evelyn@correo.com";
-    private final String PASSWORD = "1234";
+    private final String email = "evelyn@correo.com";
+    private final String password = "1234";
 
     private Usuario buildValidUsuario() {
         return new Usuario(
@@ -39,8 +36,8 @@ class UsuarioUseCaseTest {
                 "123456789",
                 "+573005678910",
                 LocalDate.of(2000, 8, 5),
-                EMAIL,
-                PASSWORD,
+                email,
+                password,
                 null
         );
     }
@@ -61,8 +58,8 @@ class UsuarioUseCaseTest {
 
         assertAll("Validar usuario creado",
                 () -> assertEquals(Role.PROPIETARIO, creado.getRole()),
-                () -> assertNotEquals(PASSWORD, creado.getPasswordHash()),
-                () -> assertTrue(encoder.matches(PASSWORD, creado.getPasswordHash()))
+                () -> assertNotEquals(password, creado.getPasswordHash()),
+                () -> assertTrue(encoder.matches(password, creado.getPasswordHash()))
         );
 
         verify(usuarioPersistencePort).saveUsuario(creado);
@@ -122,4 +119,27 @@ class UsuarioUseCaseTest {
         verify(usuarioPersistencePort).saveUsuario(any());
     }
 
+    @Test
+    void createClient_conDatosValidos_deberiaGuardarConRolCliente() {
+        Usuario usuario = new Usuario(
+                null,
+                "Cliente",
+                "Uno",
+                "321321321",
+                "+573001234567",
+                LocalDate.of(1999, 1, 1),
+                "cliente@correo.com",
+                "clave123",
+                null
+        );
+
+        when(usuarioPersistencePort.existsEmail(usuario.getEmail())).thenReturn(false);
+        when(usuarioPersistencePort.saveUsuario(any())).thenAnswer(i -> i.getArgument(0));
+
+        Usuario creado = usuarioUseCase.createClient(usuario);
+
+        assertEquals(Role.CLIENTE, creado.getRole());
+        assertTrue(new BCryptPasswordEncoder().matches("clave123", creado.getPasswordHash()));
+        verify(usuarioPersistencePort).saveUsuario(any());
+    }
 }

@@ -51,4 +51,12 @@ public class UsuarioHandler{
         return mapper.toResponseDto(usuarioServicePort.createEmployee(model));
     }
 
+    public UsuarioResponseDto createClient(UsuarioRequestDto dto) {
+        Usuario model = mapper.toModel(dto); // este método ya debe ser public
+        Usuario created = usuarioServicePort.createClient(model);
+        return mapper.toResponseDto(created);
+    }
+
+
+
 }

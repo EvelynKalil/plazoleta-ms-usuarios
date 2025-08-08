@@ -8,6 +8,7 @@ class PlazoletaMsUsuariosApplicationTests {
 
 	@Test
 	void contextLoads() {
+		// Este test verifica que el contexto de Spring se carga correctamente.
 	}
 
 }

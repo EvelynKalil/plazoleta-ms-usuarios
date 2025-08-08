@@ -44,4 +44,11 @@ public class UsuarioController {
                 .body(usuarioHandler.createEmployee(dto, token));
     }
 
+    @PostMapping("/clients")
+    public ResponseEntity<UsuarioResponseDto> createClient(@RequestBody @Valid UsuarioRequestDto dto) {
+        UsuarioResponseDto created = usuarioHandler.createClient(dto);
+        return new ResponseEntity<>(created, HttpStatus.CREATED);
+    }
+
+
 }

@@ -12,6 +12,7 @@ import java.util.Map;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
+    private static final String MESSAGE = "message";
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<Map<String, String>> handleValidationErrors(MethodArgumentNotValidException ex) {
@@ -27,28 +28,28 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(UsuarioNotFindedException.class)
     public ResponseEntity<Map<String, String>> handleUsuarioNotFound(UsuarioNotFindedException ex) {
         Map<String, String> response = new HashMap<>();
-        response.put("message", "Correo o contraseña incorrectos");
+        response.put(MESSAGE, "Correo o contraseña incorrectos");
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
     }
 
     @ExceptionHandler(UnauthorizedException.class)
     public ResponseEntity<Map<String, String>> handleUnauthorized(UnauthorizedException ex) {
         Map<String, String> response = new HashMap<>();
-        response.put("message", ex.getMessage());
+        response.put(MESSAGE, ex.getMessage());
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
     }
 
     @ExceptionHandler(IllegalArgumentException.class)
     public ResponseEntity<Map<String, String>> handleIllegalArgument(IllegalArgumentException ex) {
         Map<String, String> response = new HashMap<>();
-        response.put("message", ex.getMessage());
+        response.put(MESSAGE, ex.getMessage());
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
     }
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<Map<String, String>> handleGeneral(Exception ex) {
         Map<String, String> error = new HashMap<>();
-        error.put("message", "Error interno: " + ex.getClass().getSimpleName() + " - " + ex.getMessage());
+        error.put(MESSAGE, "Error interno: " + ex.getClass().getSimpleName() + " - " + ex.getMessage());
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(error);
     }
 }

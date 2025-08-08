@@ -30,4 +30,8 @@ public class UsuarioMapper {
                 usuario.getRole()
         );
     }
+
+    public Usuario toModel(UsuarioRequestDto dto) {
+        return toModel(dto, Role.CLIENTE);
+    }
 }

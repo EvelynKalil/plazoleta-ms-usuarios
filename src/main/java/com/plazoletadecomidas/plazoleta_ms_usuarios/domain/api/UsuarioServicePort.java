@@ -8,4 +8,5 @@ public interface UsuarioServicePort {
     Usuario saveUsuario(Usuario usuario);
     Usuario findByEmail(String email);
     Usuario createEmployee(Usuario model);
+    Usuario createClient(Usuario model);
 }

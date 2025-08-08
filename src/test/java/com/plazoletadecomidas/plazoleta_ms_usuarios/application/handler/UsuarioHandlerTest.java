@@ -101,14 +101,14 @@ class UsuarioHandlerTest {
     @Test
     void createEmployee_deberiaLlamarCasoDeUsoConRolEmpleado() {
         // Arrange
-        UsuarioRequestDto requestDto = new UsuarioRequestDto();
-        requestDto.setFirstName("Empleado");
-        requestDto.setLastName("Uno");
-        requestDto.setDocumentId("987654321");
-        requestDto.setPhone("+573001112233");
-        requestDto.setBirthDate(LocalDate.of(1995, 5, 5));
-        requestDto.setEmail("empleado@correo.com");
-        requestDto.setPassword("1234");
+        UsuarioRequestDto empleadoRequest = new UsuarioRequestDto();
+        empleadoRequest.setFirstName("Empleado");
+        empleadoRequest.setLastName("Uno");
+        empleadoRequest.setDocumentId("987654321");
+        empleadoRequest.setPhone("+573001112233");
+        empleadoRequest.setBirthDate(LocalDate.of(1995, 5, 5));
+        empleadoRequest.setEmail("empleado@correo.com");
+        empleadoRequest.setPassword("1234");
 
         Usuario empleadoModel = new Usuario(
                 null,
@@ -122,11 +122,11 @@ class UsuarioHandlerTest {
                 Role.EMPLEADO
         );
 
-        when(usuarioMapper.toModel(requestDto, Role.EMPLEADO)).thenReturn(empleadoModel);
+        when(usuarioMapper.toModel(empleadoRequest, Role.EMPLEADO)).thenReturn(empleadoModel);
         when(usuarioServicePort.createEmployee(any(Usuario.class))).thenReturn(empleadoModel);
 
         // Act
-        usuarioHandler.createEmployee(requestDto, "fake-token");
+        usuarioHandler.createEmployee(empleadoRequest, "fake-token");
 
         // Assert
         ArgumentCaptor<Usuario> captor = ArgumentCaptor.forClass(Usuario.class);
@@ -137,5 +137,47 @@ class UsuarioHandlerTest {
         assertEquals(Role.EMPLEADO, creado.getRole());
         verify(authValidator).validate("fake-token", Role.PROPIETARIO);
     }
+
+    @Test
+    void createClient_deberiaLlamarCasoDeUsoConRolCliente() {
+        // Arrange
+        UsuarioRequestDto clienteRequest = new UsuarioRequestDto();
+        clienteRequest.setFirstName("Cliente");
+        clienteRequest.setLastName("Final");
+        clienteRequest.setDocumentId("111222333");
+        clienteRequest.setPhone("+573001112244");
+        clienteRequest.setBirthDate(LocalDate.of(1990, 3, 10));
+        clienteRequest.setEmail("cliente@correo.com");
+        clienteRequest.setPassword("1234");
+
+        Usuario clienteModel = new Usuario(
+                null,
+                "Cliente",
+                "Final",
+                "111222333",
+                "+573001112244",
+                LocalDate.of(1990, 3, 10),
+                "cliente@correo.com",
+                "1234",
+                Role.CLIENTE
+        );
+
+        when(usuarioMapper.toModel(clienteRequest)).thenReturn(clienteModel);
+        when(usuarioServicePort.createClient(any(Usuario.class))).thenReturn(clienteModel);
+
+        // Act
+        usuarioHandler.createClient(clienteRequest);
+
+        // Assert
+        ArgumentCaptor<Usuario> captor = ArgumentCaptor.forClass(Usuario.class);
+        verify(usuarioServicePort).createClient(captor.capture());
+
+        Usuario creado = captor.getValue();
+        assertEquals("Cliente", creado.getFirstName());
+        assertEquals(Role.CLIENTE, creado.getRole());
+
+        verify(usuarioMapper).toModel(clienteRequest);
+    }
+
 
 }

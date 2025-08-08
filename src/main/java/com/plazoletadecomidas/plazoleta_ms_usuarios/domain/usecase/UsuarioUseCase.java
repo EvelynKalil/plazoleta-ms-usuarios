@@ -32,7 +32,6 @@ public class UsuarioUseCase implements UsuarioServicePort {
         usuario.setPasswordHash(new BCryptPasswordEncoder().encode(usuario.getPasswordHash()));
 
         usuario.setId(UUID.randomUUID());
-        System.out.println("Password hasheado: " + usuario.getPasswordHash());
         return persistencePort.saveUsuario(usuario);
     }
 
@@ -66,5 +65,18 @@ public class UsuarioUseCase implements UsuarioServicePort {
         return persistencePort.saveUsuario(usuario);
     }
 
+    @Override
+    public Usuario createClient(Usuario usuario) {
+        if (persistencePort.existsEmail(usuario.getEmail())) {
+            throw new IllegalArgumentException("El correo ya está registrado.");
+        }
 
+        if (!esMayorDeEdad(usuario.getBirthDate())) {
+            throw new IllegalArgumentException("El usuario debe ser mayor de edad.");
+        }
+
+        usuario.setRole(Role.CLIENTE);
+        usuario.setPasswordHash(new BCryptPasswordEncoder().encode(usuario.getPasswordHash()));
+        return persistencePort.saveUsuario(usuario);
+    }
 }

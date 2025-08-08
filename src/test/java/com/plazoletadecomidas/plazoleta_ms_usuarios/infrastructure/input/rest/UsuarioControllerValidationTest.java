@@ -2,7 +2,9 @@ package com.plazoletadecomidas.plazoleta_ms_usuarios.infrastructure.input.rest;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.plazoletadecomidas.plazoleta_ms_usuarios.application.dto.UsuarioRequestDto;
+import com.plazoletadecomidas.plazoleta_ms_usuarios.application.dto.UsuarioResponseDto;
 import com.plazoletadecomidas.plazoleta_ms_usuarios.application.handler.UsuarioHandler;
+import com.plazoletadecomidas.plazoleta_ms_usuarios.domain.model.Role;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,6 +15,7 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.time.LocalDate;
+import java.util.UUID;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -137,6 +140,79 @@ class UsuarioControllerValidationTest {
 
         mockMvc.perform(post("/users/employees")
                         .header("Authorization", "fake-token")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(dto)))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.email").exists());
+    }
+
+    @Test
+    @DisplayName("Debería crear cliente exitosamente")
+    void crearCliente_valido_retorna201() throws Exception {
+        UsuarioRequestDto dto = buildUsuarioDto();
+
+        var responseJson = """
+            {
+              "id": "d290f1ee-6c54-4b01-90e6-d701748f0851",
+              "firstName": "Nombre",
+              "email": "ejemplo@correo.com",
+              "role": "CLIENTE"
+            }
+            """;
+
+        when(usuarioHandler.createClient(any(UsuarioRequestDto.class)))
+                .thenReturn(new UsuarioResponseDto(
+                        UUID.fromString("d290f1ee-6c54-4b01-90e6-d701748f0851"),
+                        dto.getFirstName(),
+                        dto.getEmail(),
+                        Role.CLIENTE
+                ));
+
+        mockMvc.perform(post("/users/clients")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(dto)))
+                .andExpect(status().isCreated())
+                .andExpect(content().json(responseJson));
+    }
+
+    @Test
+    @DisplayName("Debería rechazar cliente menor de edad con error 400")
+    void crearCliente_menorDeEdad_retorna400() throws Exception {
+        UsuarioRequestDto dto = buildUsuarioDto();
+        dto.setBirthDate(LocalDate.now().minusYears(10)); // menor de edad
+
+        when(usuarioHandler.createClient(any(UsuarioRequestDto.class)))
+                .thenThrow(new IllegalArgumentException("El usuario debe ser mayor de edad."));
+
+        mockMvc.perform(post("/users/clients")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(dto)))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.message").value("El usuario debe ser mayor de edad."));
+    }
+
+    @Test
+    @DisplayName("Debería rechazar correo duplicado para cliente con error 400")
+    void crearCliente_emailDuplicado_retorna400() throws Exception {
+        UsuarioRequestDto dto = buildUsuarioDto();
+
+        when(usuarioHandler.createClient(any(UsuarioRequestDto.class)))
+                .thenThrow(new IllegalArgumentException("El correo ya está registrado."));
+
+        mockMvc.perform(post("/users/clients")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(dto)))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.message").value("El correo ya está registrado."));
+    }
+
+    @Test
+    @DisplayName("Debería rechazar email inválido al crear cliente")
+    void crearCliente_emailInvalido_retorna400() throws Exception {
+        UsuarioRequestDto dto = buildUsuarioDto();
+        dto.setEmail("sinArroba");
+
+        mockMvc.perform(post("/users/clients")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(dto)))
                 .andExpect(status().isBadRequest())

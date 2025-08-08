@@ -109,4 +109,33 @@ class UsuarioControllerTest {
                 .andExpect(jsonPath("$.role").value("EMPLEADO"));
     }
 
+    @Test
+    @DisplayName("POST /users/clients - debería crear un cliente y retornar 201 con DTO correcto")
+    void createClient_retorna201YDtoCorrecto() throws Exception {
+        UsuarioRequestDto requestDto = new UsuarioRequestDto();
+        requestDto.setFirstName("Cliente");
+        requestDto.setLastName("Uno");
+        requestDto.setDocumentId("999999");
+        requestDto.setPhone("+573001112233");
+        requestDto.setBirthDate(LocalDate.of(1999, 1, 1));
+        requestDto.setEmail("cliente@correo.com");
+        requestDto.setPassword("clave123");
+
+        UsuarioResponseDto responseDto = new UsuarioResponseDto(
+                UUID.randomUUID(),
+                "Cliente",
+                "cliente@correo.com",
+                Role.CLIENTE
+        );
+
+        when(usuarioHandler.createClient(any())).thenReturn(responseDto);
+
+        mockMvc.perform(post("/users/clients")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(requestDto)))
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.firstName").value("Cliente"))
+                .andExpect(jsonPath("$.email").value("cliente@correo.com"))
+                .andExpect(jsonPath("$.role").value("CLIENTE"));
+    }
 }
