@@ -6,6 +6,7 @@ import com.plazoletadecomidas.plazoleta_ms_usuarios.domain.model.Usuario;
 import com.plazoletadecomidas.plazoleta_ms_usuarios.domain.spi.UsuarioPersistencePort;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
+import javax.transaction.Transactional;
 import java.time.LocalDate;
 import java.time.Period;
 import java.util.UUID;
@@ -49,8 +50,10 @@ public class UsuarioUseCase implements UsuarioServicePort {
         return persistencePort.saveUsuario(usuario);
     }
 
+
+
     @Override
-    public Usuario createEmployee(Usuario usuario) {
+    public Usuario createEmployee(Usuario usuario, UUID restaurantId) {
         if (persistencePort.existsEmail(usuario.getEmail())) {
             throw new IllegalArgumentException("El correo ya está registrado.");
         }
@@ -62,8 +65,14 @@ public class UsuarioUseCase implements UsuarioServicePort {
         usuario.setRole(Role.EMPLEADO);
         usuario.setPasswordHash(new BCryptPasswordEncoder().encode(usuario.getPasswordHash()));
 
-        return persistencePort.saveUsuario(usuario);
+        // Guardar primero el usuario
+        Usuario savedUsuario = persistencePort.saveUsuario(usuario);
+
+        // Guardar relación empleado-restaurante
+        //employeeRestaurantPersistencePort.saveRelation(savedUsuario.getId(), restaurantId);
+        return savedUsuario;
     }
+
 
     @Override
     public Usuario createClient(Usuario usuario) {

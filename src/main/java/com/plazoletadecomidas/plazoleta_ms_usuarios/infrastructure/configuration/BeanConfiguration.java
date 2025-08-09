@@ -5,6 +5,7 @@ import com.plazoletadecomidas.plazoleta_ms_usuarios.application.mapper.UsuarioMa
 import com.plazoletadecomidas.plazoleta_ms_usuarios.domain.api.UsuarioServicePort;
 import com.plazoletadecomidas.plazoleta_ms_usuarios.domain.spi.UsuarioPersistencePort;
 import com.plazoletadecomidas.plazoleta_ms_usuarios.domain.usecase.UsuarioUseCase;
+import com.plazoletadecomidas.plazoleta_ms_usuarios.infrastructure.client.RestaurantClient;
 import com.plazoletadecomidas.plazoleta_ms_usuarios.infrastructure.output.jpa.adapter.UsuarioJpaAdapter;
 import com.plazoletadecomidas.plazoleta_ms_usuarios.infrastructure.output.jpa.mapper.UsuarioEntityMapper;
 import com.plazoletadecomidas.plazoleta_ms_usuarios.infrastructure.output.jpa.repository.UsuarioRepository;
@@ -27,7 +28,7 @@ public class BeanConfiguration {
     }
 
     @Bean
-    public UsuarioHandler usuarioHandler(UsuarioServicePort servicePort, UsuarioMapper mapper, AuthValidator authValidator, JwtUtil jwtUtil) {
-        return new UsuarioHandler(servicePort, mapper, authValidator, jwtUtil);
+    public UsuarioHandler usuarioHandler(UsuarioServicePort servicePort, UsuarioMapper mapper, AuthValidator authValidator, JwtUtil jwtUtil, RestaurantClient restaurantClient) {
+        return new UsuarioHandler(servicePort, mapper, authValidator, jwtUtil, restaurantClient);
     }
 }

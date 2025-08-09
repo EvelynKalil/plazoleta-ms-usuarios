@@ -4,6 +4,7 @@ import lombok.Getter;
 import lombok.Setter;
 import javax.validation.constraints.*;
 import java.time.LocalDate;
+import java.util.UUID;
 
 
 @Getter
@@ -34,4 +35,6 @@ public class UsuarioRequestDto {
     @NotBlank
     private String password;
 
+    @NotNull
+    private UUID restaurantId;
 }

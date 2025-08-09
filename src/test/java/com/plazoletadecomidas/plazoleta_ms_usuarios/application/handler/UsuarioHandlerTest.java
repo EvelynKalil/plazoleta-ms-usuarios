@@ -5,6 +5,7 @@ import com.plazoletadecomidas.plazoleta_ms_usuarios.application.mapper.UsuarioMa
 import com.plazoletadecomidas.plazoleta_ms_usuarios.domain.api.UsuarioServicePort;
 import com.plazoletadecomidas.plazoleta_ms_usuarios.domain.model.Role;
 import com.plazoletadecomidas.plazoleta_ms_usuarios.domain.model.Usuario;
+import com.plazoletadecomidas.plazoleta_ms_usuarios.infrastructure.client.RestaurantClient;
 import com.plazoletadecomidas.plazoleta_ms_usuarios.infrastructure.security.AuthValidator;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -39,6 +40,9 @@ class UsuarioHandlerTest {
 
     private UsuarioRequestDto requestDto;
     private Usuario usuarioMock;
+
+    @Mock
+    private RestaurantClient restaurantClient;
 
     @BeforeEach
     void setUp() {
@@ -101,6 +105,10 @@ class UsuarioHandlerTest {
     @Test
     void createEmployee_deberiaLlamarCasoDeUsoConRolEmpleado() {
         // Arrange
+        UUID restaurantId = UUID.randomUUID();
+        UUID ownerId = UUID.randomUUID();
+        UUID empleadoId = UUID.randomUUID();
+
         UsuarioRequestDto empleadoRequest = new UsuarioRequestDto();
         empleadoRequest.setFirstName("Empleado");
         empleadoRequest.setLastName("Uno");
@@ -109,9 +117,10 @@ class UsuarioHandlerTest {
         empleadoRequest.setBirthDate(LocalDate.of(1995, 5, 5));
         empleadoRequest.setEmail("empleado@correo.com");
         empleadoRequest.setPassword("1234");
+        empleadoRequest.setRestaurantId(restaurantId);
 
         Usuario empleadoModel = new Usuario(
-                null,
+                empleadoId,
                 "Empleado",
                 "Uno",
                 "987654321",
@@ -122,21 +131,30 @@ class UsuarioHandlerTest {
                 Role.EMPLEADO
         );
 
+        when(authValidator.validate("fake-token", Role.PROPIETARIO)).thenReturn(ownerId);
+        when(restaurantClient.isOwnerOfRestaurant(restaurantId, ownerId)).thenReturn(true);
         when(usuarioMapper.toModel(empleadoRequest, Role.EMPLEADO)).thenReturn(empleadoModel);
-        when(usuarioServicePort.createEmployee(any(Usuario.class))).thenReturn(empleadoModel);
+        when(usuarioServicePort.createEmployee(any(Usuario.class), eq(restaurantId))).thenReturn(empleadoModel);
 
         // Act
         usuarioHandler.createEmployee(empleadoRequest, "fake-token");
 
         // Assert
         ArgumentCaptor<Usuario> captor = ArgumentCaptor.forClass(Usuario.class);
-        verify(usuarioServicePort).createEmployee(captor.capture());
+        verify(usuarioServicePort).createEmployee(captor.capture(), eq(restaurantId));
 
         Usuario creado = captor.getValue();
         assertEquals("Empleado", creado.getFirstName());
         assertEquals(Role.EMPLEADO, creado.getRole());
         verify(authValidator).validate("fake-token", Role.PROPIETARIO);
+        verify(restaurantClient).addEmployeeToRestaurant(
+                eq(restaurantId),
+                argThat(req -> req.employeeId.equals(creado.getId())),
+                anyString()
+        );
+
     }
+
 
     @Test
     void createClient_deberiaLlamarCasoDeUsoConRolCliente() {

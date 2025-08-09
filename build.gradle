@@ -8,6 +8,12 @@ plugins {
 group = 'com.plazoletadecomidas'
 version = '0.0.1-SNAPSHOT'
 
+dependencyManagement {
+	imports {
+		mavenBom "org.springframework.cloud:spring-cloud-dependencies:2021.0.5"
+	}
+}
+
 java {
 	toolchain {
 		languageVersion = JavaLanguageVersion.of(17)
@@ -41,6 +47,7 @@ dependencies {
 	implementation "org.springframework.boot:spring-boot-starter-data-jpa:${springBootVersion}"
 	implementation "org.springframework.boot:spring-boot-starter-security:${springBootVersion}"
 	implementation "org.springframework.boot:spring-boot-starter-validation:${springBootVersion}"
+
 	// --- Drivers y Runtimes ---
 	implementation 'mysql:mysql-connector-java:8.0.33'
 	//runtimeOnly "mysql:mysql-connector-java:${mySqlConnectorVersion}"
@@ -76,6 +83,10 @@ dependencies {
 	implementation 'io.jsonwebtoken:jjwt-api:0.11.5'
 	runtimeOnly 'io.jsonwebtoken:jjwt-impl:0.11.5'
 	runtimeOnly 'io.jsonwebtoken:jjwt-jackson:0.11.5' // usa Jackson para parsear el JSON
+
+	//--- Cliente OpenFeing ---
+	implementation 'org.springframework.cloud:spring-cloud-starter-openfeign'
+
 }
 
 tasks.named('test') {

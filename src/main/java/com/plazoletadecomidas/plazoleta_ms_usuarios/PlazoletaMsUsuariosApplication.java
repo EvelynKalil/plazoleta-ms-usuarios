@@ -3,8 +3,10 @@ package com.plazoletadecomidas.plazoleta_ms_usuarios;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import io.github.cdimascio.dotenv.Dotenv;
+import org.springframework.cloud.openfeign.EnableFeignClients;
 
 @SpringBootApplication
+@EnableFeignClients(basePackages = "com.plazoletadecomidas.plazoleta_ms_usuarios.infrastructure.client")
 public class PlazoletaMsUsuariosApplication {
 
 	public static void main(String[] args) {

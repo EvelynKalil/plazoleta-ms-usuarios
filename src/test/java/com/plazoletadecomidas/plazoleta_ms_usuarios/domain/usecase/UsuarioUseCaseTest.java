@@ -12,6 +12,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 import java.time.LocalDate;
+import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -97,6 +98,7 @@ class UsuarioUseCaseTest {
 
     @Test
     void createEmployee_conDatosValidos_deberiaGuardarConRolEmpleado() {
+        // Arrange
         Usuario usuario = new Usuario(
                 null,
                 "Empleado",
@@ -109,15 +111,20 @@ class UsuarioUseCaseTest {
                 null
         );
 
+        UUID restaurantId = UUID.randomUUID();
+
         when(usuarioPersistencePort.existsEmail(usuario.getEmail())).thenReturn(false);
         when(usuarioPersistencePort.saveUsuario(any())).thenAnswer(i -> i.getArgument(0));
 
-        Usuario creado = usuarioUseCase.createEmployee(usuario);
+        // Act
+        Usuario creado = usuarioUseCase.createEmployee(usuario, restaurantId);
 
+        // Assert
         assertEquals(Role.EMPLEADO, creado.getRole());
         assertTrue(new BCryptPasswordEncoder().matches("clave123", creado.getPasswordHash()));
         verify(usuarioPersistencePort).saveUsuario(any());
     }
+
 
     @Test
     void createClient_conDatosValidos_deberiaGuardarConRolCliente() {
