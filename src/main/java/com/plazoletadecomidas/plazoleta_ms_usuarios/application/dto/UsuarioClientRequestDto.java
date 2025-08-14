@@ -1,0 +1,39 @@
+package com.plazoletadecomidas.plazoleta_ms_usuarios.application.dto;
+
+import lombok.Getter;
+import lombok.Setter;
+import javax.validation.constraints.Email;
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Pattern;
+import java.time.LocalDate;
+
+@Getter
+@Setter
+public class UsuarioClientRequestDto {
+
+    @NotBlank
+    private String firstName;
+
+    @NotBlank
+    private String lastName;
+
+    @NotBlank
+    @Pattern(regexp = "^\\d+$", message = "El documento solo debe contener números")
+    private String documentId;
+
+    @NotBlank
+    @Pattern(regexp = "^\\+?\\d{1,13}$", message = "Celular debe tener máximo 13 dígitos y puede incluir +")
+    private String phone;
+
+    @NotNull
+    private LocalDate birthDate;
+
+    @NotBlank
+    @Email
+    private String email;
+
+    @NotBlank
+    private String password;
+}
+

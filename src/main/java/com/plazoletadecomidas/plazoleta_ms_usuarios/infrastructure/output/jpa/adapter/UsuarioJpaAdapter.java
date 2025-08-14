@@ -7,6 +7,9 @@ import com.plazoletadecomidas.plazoleta_ms_usuarios.infrastructure.output.jpa.en
 import com.plazoletadecomidas.plazoleta_ms_usuarios.infrastructure.output.jpa.mapper.UsuarioEntityMapper;
 import com.plazoletadecomidas.plazoleta_ms_usuarios.infrastructure.output.jpa.repository.UsuarioRepository;
 
+import java.util.Optional;
+import java.util.UUID;
+
 public class UsuarioJpaAdapter implements UsuarioPersistencePort {
 
     private final UsuarioRepository repository;
@@ -40,4 +43,21 @@ public class UsuarioJpaAdapter implements UsuarioPersistencePort {
     public Usuario createEmployee(Usuario usuario) {
         return saveUsuario(usuario);
     }
+
+    @Override
+    public Optional<Usuario> findById(UUID id) {
+        return repository.findById(id)
+                .map(entity -> new Usuario(
+                        entity.getId(),
+                        entity.getFirstName(),
+                        entity.getLastName(),
+                        entity.getDocumentId(),
+                        entity.getPhone(),
+                        entity.getBirthDate(),
+                        entity.getEmail(),
+                        entity.getPasswordHash(),
+                        entity.getRole()
+                ));
+    }
+
 }

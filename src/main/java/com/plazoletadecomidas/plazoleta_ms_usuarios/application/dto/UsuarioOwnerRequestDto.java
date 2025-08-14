@@ -2,14 +2,16 @@ package com.plazoletadecomidas.plazoleta_ms_usuarios.application.dto;
 
 import lombok.Getter;
 import lombok.Setter;
-import javax.validation.constraints.*;
+import javax.validation.constraints.Email;
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Pattern;
 import java.time.LocalDate;
-import java.util.UUID;
 
 
 @Getter
 @Setter
-public class UsuarioRequestDto {
+public class UsuarioOwnerRequestDto {
 
     @NotBlank
     private String firstName;
@@ -34,7 +36,4 @@ public class UsuarioRequestDto {
 
     @NotBlank
     private String password;
-
-    @NotNull
-    private UUID restaurantId;
 }

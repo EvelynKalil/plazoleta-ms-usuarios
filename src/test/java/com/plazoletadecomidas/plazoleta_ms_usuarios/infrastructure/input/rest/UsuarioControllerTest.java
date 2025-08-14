@@ -1,20 +1,19 @@
 package com.plazoletadecomidas.plazoleta_ms_usuarios.infrastructure.input.rest;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.plazoletadecomidas.plazoleta_ms_usuarios.application.dto.UsuarioRequestDto;
+import com.plazoletadecomidas.plazoleta_ms_usuarios.application.dto.UsuarioClientRequestDto;
+import com.plazoletadecomidas.plazoleta_ms_usuarios.application.dto.UsuarioEmployeeRequestDto;
+import com.plazoletadecomidas.plazoleta_ms_usuarios.application.dto.UsuarioOwnerRequestDto;
 import com.plazoletadecomidas.plazoleta_ms_usuarios.application.dto.UsuarioResponseDto;
 import com.plazoletadecomidas.plazoleta_ms_usuarios.application.handler.UsuarioHandler;
 import com.plazoletadecomidas.plazoleta_ms_usuarios.domain.model.Role;
-
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.BDDMockito;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
-
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
@@ -31,20 +30,15 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @AutoConfigureMockMvc(addFilters = false)
 class UsuarioControllerTest {
 
-    @Autowired
-    private MockMvc mockMvc;
-
-    @MockBean
-    private UsuarioHandler usuarioHandler;
-
-    @Autowired
-    private ObjectMapper objectMapper;
+    @Autowired private MockMvc mockMvc;
+    @MockBean private UsuarioHandler usuarioHandler;
+    @Autowired private ObjectMapper objectMapper;
 
     @Test
-    @DisplayName("POST /users/owners - debería crear un propietario y retornar 201 con DTO correcto")
-    void createOwner_deberiaRetornar201YUsuarioResponseDto() throws Exception {
+    @DisplayName("POST /users/owners -> 201 y body correcto")
+    void createOwner_creaPropietario() throws Exception {
         // Arrange
-        UsuarioRequestDto requestDto = new UsuarioRequestDto();
+        UsuarioOwnerRequestDto requestDto = new UsuarioOwnerRequestDto();
         requestDto.setFirstName("Evelyn");
         requestDto.setLastName("Kalil");
         requestDto.setDocumentId("123456789");
@@ -54,25 +48,20 @@ class UsuarioControllerTest {
         requestDto.setPassword("1234");
 
         UUID expectedId = UUID.fromString("11111111-1111-1111-1111-111111111111");
-
         UsuarioResponseDto responseDto = new UsuarioResponseDto(
-                expectedId,
-                "Evelyn",
-                "evelyn@correo.com",
-                Role.PROPIETARIO
+                expectedId, "Evelyn", "evelyn@correo.com", Role.PROPIETARIO
         );
 
-        BDDMockito.given(usuarioHandler.createOwner(
-                any(UsuarioRequestDto.class),
-                anyString()
-        )).willReturn(responseDto);
+        BDDMockito.given(usuarioHandler.createOwner(any(UsuarioOwnerRequestDto.class), anyString()))
+                .willReturn(responseDto);
 
         // Act & Assert
         mockMvc.perform(post("/users/owners")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .header("Authorization", "Bearer fake-token") // Simula token
+                        .header("Authorization", "Bearer fake-token")
                         .content(objectMapper.writeValueAsString(requestDto)))
                 .andExpect(status().isCreated())
+                .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.id").value(expectedId.toString()))
                 .andExpect(jsonPath("$.firstName").value("Evelyn"))
                 .andExpect(jsonPath("$.email").value("evelyn@correo.com"))
@@ -80,8 +69,9 @@ class UsuarioControllerTest {
     }
 
     @Test
+    @DisplayName("POST /users/employees -> 201 y body correcto")
     void createEmployee_retorna201YDtoCorrecto() throws Exception {
-        UsuarioRequestDto requestDto = new UsuarioRequestDto();
+        UsuarioEmployeeRequestDto requestDto = new UsuarioEmployeeRequestDto();
         requestDto.setFirstName("Empleado");
         requestDto.setLastName("Uno");
         requestDto.setDocumentId("123123");
@@ -89,30 +79,30 @@ class UsuarioControllerTest {
         requestDto.setBirthDate(LocalDate.of(1995, 1, 1));
         requestDto.setEmail("empleado@correo.com");
         requestDto.setPassword("clave");
+        // si tu DTO de empleado incluye restaurantId, agrégalo:
+        // requestDto.setRestaurantId(UUID.randomUUID());
 
         UsuarioResponseDto responseDto = new UsuarioResponseDto(
-                UUID.randomUUID(),
-                "Empleado",
-                "empleado@correo.com",
-                Role.EMPLEADO
+                UUID.randomUUID(), "Empleado", "empleado@correo.com", Role.EMPLEADO
         );
 
         when(usuarioHandler.createEmployee(any(), anyString())).thenReturn(responseDto);
 
         mockMvc.perform(post("/users/employees")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .header("Authorization", "fake-token")
+                        .header("Authorization", "Bearer fake-token")
                         .content(objectMapper.writeValueAsString(requestDto)))
                 .andExpect(status().isCreated())
+                .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.firstName").value("Empleado"))
                 .andExpect(jsonPath("$.email").value("empleado@correo.com"))
                 .andExpect(jsonPath("$.role").value("EMPLEADO"));
     }
 
     @Test
-    @DisplayName("POST /users/clients - debería crear un cliente y retornar 201 con DTO correcto")
+    @DisplayName("POST /users/clients -> 201 y body correcto")
     void createClient_retorna201YDtoCorrecto() throws Exception {
-        UsuarioRequestDto requestDto = new UsuarioRequestDto();
+        UsuarioClientRequestDto requestDto = new UsuarioClientRequestDto();
         requestDto.setFirstName("Cliente");
         requestDto.setLastName("Uno");
         requestDto.setDocumentId("999999");
@@ -122,18 +112,16 @@ class UsuarioControllerTest {
         requestDto.setPassword("clave123");
 
         UsuarioResponseDto responseDto = new UsuarioResponseDto(
-                UUID.randomUUID(),
-                "Cliente",
-                "cliente@correo.com",
-                Role.CLIENTE
+                UUID.randomUUID(), "Cliente", "cliente@correo.com", Role.CLIENTE
         );
 
-        when(usuarioHandler.createClient(any())).thenReturn(responseDto);
+        when(usuarioHandler.createClient(any(UsuarioClientRequestDto.class))).thenReturn(responseDto);
 
         mockMvc.perform(post("/users/clients")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(requestDto)))
                 .andExpect(status().isCreated())
+                .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.firstName").value("Cliente"))
                 .andExpect(jsonPath("$.email").value("cliente@correo.com"))
                 .andExpect(jsonPath("$.role").value("CLIENTE"));

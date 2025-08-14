@@ -5,6 +5,7 @@ import com.plazoletadecomidas.plazoleta_ms_usuarios.domain.model.Role;
 import com.plazoletadecomidas.plazoleta_ms_usuarios.domain.model.Usuario;
 import com.plazoletadecomidas.plazoleta_ms_usuarios.domain.spi.UsuarioPersistencePort;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.webjars.NotFoundException;
 
 import javax.transaction.Transactional;
 import java.time.LocalDate;
@@ -87,5 +88,16 @@ public class UsuarioUseCase implements UsuarioServicePort {
         usuario.setRole(Role.CLIENTE);
         usuario.setPasswordHash(new BCryptPasswordEncoder().encode(usuario.getPasswordHash()));
         return persistencePort.saveUsuario(usuario);
+    }
+
+    @Override
+    public Usuario findById(UUID id) {
+        return persistencePort.findById(id)
+                .orElseThrow(() -> new NotFoundException("Usuario no encontrado con id " + id));
+    }
+
+    @Override
+    public String getPhone(UUID id) {
+        return findById(id).getPhone();
     }
 }

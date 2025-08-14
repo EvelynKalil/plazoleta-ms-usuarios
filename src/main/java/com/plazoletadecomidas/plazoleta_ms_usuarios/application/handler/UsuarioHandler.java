@@ -1,7 +1,10 @@
 package com.plazoletadecomidas.plazoleta_ms_usuarios.application.handler;
 
 import com.plazoletadecomidas.plazoleta_ms_usuarios.application.dto.LoginRequestDto;
-import com.plazoletadecomidas.plazoleta_ms_usuarios.application.dto.UsuarioRequestDto;
+import com.plazoletadecomidas.plazoleta_ms_usuarios.application.dto.PhoneResponseDto;
+import com.plazoletadecomidas.plazoleta_ms_usuarios.application.dto.UsuarioClientRequestDto;
+import com.plazoletadecomidas.plazoleta_ms_usuarios.application.dto.UsuarioOwnerRequestDto;
+import com.plazoletadecomidas.plazoleta_ms_usuarios.application.dto.UsuarioEmployeeRequestDto;
 import com.plazoletadecomidas.plazoleta_ms_usuarios.application.dto.UsuarioResponseDto;
 import com.plazoletadecomidas.plazoleta_ms_usuarios.application.mapper.UsuarioMapper;
 import com.plazoletadecomidas.plazoleta_ms_usuarios.domain.api.UsuarioServicePort;
@@ -43,13 +46,13 @@ public class UsuarioHandler{
         return jwtUtil.generateToken(usuario.getId(), usuario.getRole());
     }
 
-    public UsuarioResponseDto createOwner(UsuarioRequestDto dto, String token) {
+    public UsuarioResponseDto createOwner(UsuarioOwnerRequestDto dto, String token) {
         authValidator.validate(token, Role.ADMINISTRADOR);
-        Usuario model = mapper.toModel(dto, Role.PROPIETARIO);
+        Usuario model = mapper.toModel(dto);
         return mapper.toResponseDto(usuarioServicePort.createOwner(model));
     }
 
-    public UsuarioResponseDto createEmployee(UsuarioRequestDto dto, String token) {
+    public UsuarioResponseDto createEmployee(UsuarioEmployeeRequestDto dto, String token) {
         // 1) Solo propietarios pueden crear empleados y de paso obtienes su ownerId
         UUID ownerId = authValidator.validate(token, Role.PROPIETARIO);
 
@@ -74,12 +77,13 @@ public class UsuarioHandler{
         return mapper.toResponseDto(creado);
     }
 
-    public UsuarioResponseDto createClient(UsuarioRequestDto dto) {
-        Usuario model = mapper.toModel(dto); // este método ya debe ser public
+    public UsuarioResponseDto createClient(UsuarioClientRequestDto dto) {
+        Usuario model = mapper.toModel(dto);
         Usuario created = usuarioServicePort.createClient(model);
         return mapper.toResponseDto(created);
     }
 
-
-
+    public PhoneResponseDto getPhoneById(UUID id) {
+        return new PhoneResponseDto(usuarioServicePort.findById(id).getPhone());
+    }
 }
