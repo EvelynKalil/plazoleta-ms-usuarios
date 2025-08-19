@@ -7,13 +7,17 @@ import com.plazoletadecomidas.plazoleta_ms_usuarios.application.dto.UsuarioOwner
 import com.plazoletadecomidas.plazoleta_ms_usuarios.application.dto.UsuarioResponseDto;
 import com.plazoletadecomidas.plazoleta_ms_usuarios.application.handler.UsuarioHandler;
 import com.plazoletadecomidas.plazoleta_ms_usuarios.domain.model.Role;
+import com.plazoletadecomidas.plazoleta_ms_usuarios.infrastructure.exceptionhandler.GlobalExceptionHandler;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.time.LocalDate;
@@ -25,8 +29,10 @@ import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-@WebMvcTest(UsuarioController.class)
+@WebMvcTest(controllers = UsuarioController.class, excludeAutoConfiguration = { SecurityAutoConfiguration.class })
+@Import(GlobalExceptionHandler.class)
 @AutoConfigureMockMvc(addFilters = false)
+@ActiveProfiles("test")
 class UsuarioControllerValidationTest {
 
     @Autowired private MockMvc mockMvc;
@@ -80,7 +86,6 @@ class UsuarioControllerValidationTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(dto)))
                 .andExpect(status().isBadRequest())
-                // ajusta al shape de tu GlobalExceptionHandler (campo/estructura exacta)
                 .andExpect(jsonPath("$.email").exists());
     }
 
@@ -223,8 +228,7 @@ class UsuarioControllerValidationTest {
         dto.setBirthDate(LocalDate.of(1995, 5, 5));
         dto.setEmail("empleado@correo.com");
         dto.setPassword("clave123");
-        // si tu DTO exige restaurantId, setéalo aquí:
-        // dto.setRestaurantId(UUID.randomUUID());
+        dto.setRestaurantId(UUID.randomUUID());
         return dto;
     }
 

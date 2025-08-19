@@ -1,5 +1,8 @@
 package com.plazoletadecomidas.plazoleta_ms_usuarios.infrastructure.client;
 
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -22,11 +25,10 @@ public interface RestaurantClient {
                                  @RequestBody AddEmployeeRequest body,
                                  @RequestHeader("Authorization") String bearer);
 
+    @Getter
+    @NoArgsConstructor
+    @AllArgsConstructor
     class AddEmployeeRequest {
-        public UUID employeeId;
-        public AddEmployeeRequest() {}
-        public AddEmployeeRequest(UUID employeeId) { this.employeeId = employeeId; }
+        private UUID employeeId;
     }
 }
-
-

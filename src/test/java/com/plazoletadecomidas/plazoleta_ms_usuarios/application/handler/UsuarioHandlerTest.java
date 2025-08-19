@@ -17,6 +17,7 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.test.context.ActiveProfiles;
 
 import java.time.LocalDate;
 import java.util.UUID;
@@ -25,6 +26,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
+@ActiveProfiles("test")
 class UsuarioHandlerTest {
 
     @Mock private UsuarioServicePort usuarioServicePort;
@@ -144,7 +146,7 @@ class UsuarioHandlerTest {
         verify(authValidator).validate("fake-token", Role.PROPIETARIO);
         verify(restaurantClient).addEmployeeToRestaurant(
                 eq(restaurantId),
-                argThat(req -> req.employeeId.equals(creado.getId())),
+                argThat(req -> req.getEmployeeId().equals(creado.getId())),
                 anyString()
         );
     }

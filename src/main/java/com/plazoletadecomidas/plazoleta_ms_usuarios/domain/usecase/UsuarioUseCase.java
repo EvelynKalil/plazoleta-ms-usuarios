@@ -6,8 +6,6 @@ import com.plazoletadecomidas.plazoleta_ms_usuarios.domain.model.Usuario;
 import com.plazoletadecomidas.plazoleta_ms_usuarios.domain.spi.UsuarioPersistencePort;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.webjars.NotFoundException;
-
-import javax.transaction.Transactional;
 import java.time.LocalDate;
 import java.time.Period;
 import java.util.UUID;
@@ -66,12 +64,7 @@ public class UsuarioUseCase implements UsuarioServicePort {
         usuario.setRole(Role.EMPLEADO);
         usuario.setPasswordHash(new BCryptPasswordEncoder().encode(usuario.getPasswordHash()));
 
-        // Guardar primero el usuario
-        Usuario savedUsuario = persistencePort.saveUsuario(usuario);
-
-        // Guardar relación empleado-restaurante
-        //employeeRestaurantPersistencePort.saveRelation(savedUsuario.getId(), restaurantId);
-        return savedUsuario;
+        return persistencePort.saveUsuario(usuario);
     }
 
 

@@ -7,27 +7,32 @@ import com.plazoletadecomidas.plazoleta_ms_usuarios.application.dto.UsuarioOwner
 import com.plazoletadecomidas.plazoleta_ms_usuarios.application.dto.UsuarioResponseDto;
 import com.plazoletadecomidas.plazoleta_ms_usuarios.application.handler.UsuarioHandler;
 import com.plazoletadecomidas.plazoleta_ms_usuarios.domain.model.Role;
+import com.plazoletadecomidas.plazoleta_ms_usuarios.infrastructure.exceptionhandler.GlobalExceptionHandler;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.BDDMockito;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
-
 import java.time.LocalDate;
 import java.util.UUID;
-
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-@WebMvcTest(UsuarioController.class)
+
+@WebMvcTest(controllers = UsuarioController.class, excludeAutoConfiguration = { SecurityAutoConfiguration.class })
+@Import(GlobalExceptionHandler.class)
 @AutoConfigureMockMvc(addFilters = false)
+@ActiveProfiles("test")
 class UsuarioControllerTest {
 
     @Autowired private MockMvc mockMvc;
@@ -79,8 +84,7 @@ class UsuarioControllerTest {
         requestDto.setBirthDate(LocalDate.of(1995, 1, 1));
         requestDto.setEmail("empleado@correo.com");
         requestDto.setPassword("clave");
-        // si tu DTO de empleado incluye restaurantId, agrégalo:
-        // requestDto.setRestaurantId(UUID.randomUUID());
+        requestDto.setRestaurantId(UUID.randomUUID()); // 👈 OBLIGATORIO
 
         UsuarioResponseDto responseDto = new UsuarioResponseDto(
                 UUID.randomUUID(), "Empleado", "empleado@correo.com", Role.EMPLEADO
@@ -98,6 +102,7 @@ class UsuarioControllerTest {
                 .andExpect(jsonPath("$.email").value("empleado@correo.com"))
                 .andExpect(jsonPath("$.role").value("EMPLEADO"));
     }
+
 
     @Test
     @DisplayName("POST /users/clients -> 201 y body correcto")
