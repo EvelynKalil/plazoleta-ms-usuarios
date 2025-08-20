@@ -2,6 +2,7 @@ package com.plazoletadecomidas.plazoleta_ms_usuarios.infrastructure.input.rest;
 
 import com.plazoletadecomidas.plazoleta_ms_usuarios.application.dto.LoginRequestDto;
 import com.plazoletadecomidas.plazoleta_ms_usuarios.application.dto.PhoneResponseDto;
+import com.plazoletadecomidas.plazoleta_ms_usuarios.application.dto.RoleResponseDto;
 import com.plazoletadecomidas.plazoleta_ms_usuarios.application.dto.UsuarioClientRequestDto;
 import com.plazoletadecomidas.plazoleta_ms_usuarios.application.dto.UsuarioOwnerRequestDto;
 import com.plazoletadecomidas.plazoleta_ms_usuarios.application.dto.UsuarioEmployeeRequestDto;
@@ -60,5 +61,14 @@ public class UsuarioController {
     ) {
         return ResponseEntity.ok(usuarioHandler.getPhoneById(id));
     }
+
+    @GetMapping("/{id}/role")
+    public ResponseEntity<RoleResponseDto> getRoleById(
+            @PathVariable java.util.UUID id,
+            @RequestHeader(value = "Authorization", required = false) String token
+    ) {
+        return ResponseEntity.ok(usuarioHandler.getRoleById(id));
+    }
+
 
 }

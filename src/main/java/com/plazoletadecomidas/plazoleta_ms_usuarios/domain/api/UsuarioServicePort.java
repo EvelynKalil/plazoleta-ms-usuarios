@@ -12,4 +12,5 @@ public interface UsuarioServicePort {
     Usuario createEmployee(Usuario usuario, UUID restaurantId);
     Usuario findById(UUID id);
     String getPhone(UUID id);
+    String getRoleById(UUID id);
 }

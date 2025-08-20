@@ -93,4 +93,12 @@ public class UsuarioUseCase implements UsuarioServicePort {
     public String getPhone(UUID id) {
         return findById(id).getPhone();
     }
+
+    @Override
+    public String getRoleById(UUID id) {
+        Usuario usuario = persistencePort.findById(id)
+                .orElseThrow(() -> new NotFoundException("Usuario no encontrado con id: " + id));
+        return usuario.getRole().name();
+    }
+
 }

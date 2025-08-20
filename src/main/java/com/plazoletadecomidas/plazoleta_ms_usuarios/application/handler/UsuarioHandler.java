@@ -2,6 +2,7 @@ package com.plazoletadecomidas.plazoleta_ms_usuarios.application.handler;
 
 import com.plazoletadecomidas.plazoleta_ms_usuarios.application.dto.LoginRequestDto;
 import com.plazoletadecomidas.plazoleta_ms_usuarios.application.dto.PhoneResponseDto;
+import com.plazoletadecomidas.plazoleta_ms_usuarios.application.dto.RoleResponseDto;
 import com.plazoletadecomidas.plazoleta_ms_usuarios.application.dto.UsuarioClientRequestDto;
 import com.plazoletadecomidas.plazoleta_ms_usuarios.application.dto.UsuarioOwnerRequestDto;
 import com.plazoletadecomidas.plazoleta_ms_usuarios.application.dto.UsuarioEmployeeRequestDto;
@@ -85,5 +86,10 @@ public class UsuarioHandler{
 
     public PhoneResponseDto getPhoneById(UUID id) {
         return new PhoneResponseDto(usuarioServicePort.findById(id).getPhone());
+    }
+
+    public RoleResponseDto getRoleById(UUID id) {
+        String role = usuarioServicePort.getRoleById(id);
+        return new RoleResponseDto(role);
     }
 }
